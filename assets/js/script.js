@@ -101,7 +101,7 @@ $(".list-group").on("blur", "textarea", function () {
   // get the textarea's current value/text
   var text = $(this)
     .val()
-    .trim();
+
 
   // get the parent ul's id attribute
   var status = $(this)
@@ -148,7 +148,7 @@ $(".list-group").on("blur", "input[type='text']", function () {
   // get current text
   var date = $(this)
     .val()
-    .trim();
+
 
   // get the parent ul's id attribute
   var status = $(this)
