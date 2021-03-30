@@ -33,7 +33,7 @@ var loadTasks = function () {
 
   // loop over object properties
   $.each(tasks, function (list, arr) {
-    // console.log(list, arr);
+    console.log(list, arr);
     // then loop over sub-array
     arr.forEach(function (task) {
       createTask(task.text, task.date, list);
@@ -44,6 +44,74 @@ var loadTasks = function () {
 var saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+/* Add SORTABLE method with jQuery UI*/
+$(".card .list-group").sortable({
+  //enable dragging accross lists
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function (event, ui) {
+    console.log("ui");
+  },
+  deactivate: function (event, ui) {
+    console.log("ui");
+  },
+  over: function (event) {
+    console.log(event);
+  },
+  out: function (event) {
+    console.log(event);
+  },
+  update: function () {
+    // Array to store the task data in
+    var tempArr = [];
+
+    // Loop over current set of children in sortable list
+    $(this)
+      .children()
+      .each(function () {
+        // save values in temp array
+        tempArr.push({
+          text: $(this)
+            .find("p")
+            .text()
+            .trim(),
+
+          date: $(this)
+            .find("span")
+            .text()
+            .trim()
+        });
+      });
+    //Trim down list's ID to match object property
+    var arrName = $(this)
+      .attr("id")
+      .replace("list-", "");
+    //Update array on tasks object and save
+    tasks[arrName] = tempArr;
+    saveTasks();
+  },
+  stop: function (event) {
+    $(this).removeClass("dropover");
+  }
+});
+
+// Add droppable for trash
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function (event, ui) {
+    ui.draggable.remove();
+  },
+  over: function (event, ui) {
+    console.log("over");
+  },
+  out: function (event, ui) {
+    console.log("out");
+  }
+});
 
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function () {
@@ -114,7 +182,7 @@ $(".list-group").on("blur", "textarea", function () {
     .closest(".list-group-item")
     .index();
   //update task in array and re-save to localStorage
-  tasks[status][index].date = date;
+  tasks[status][index].text = text;
   saveTasks();
   // recreate p element
   var taskP = $("<p>")
@@ -144,7 +212,7 @@ $(".list-group").on("click", "span", function () {
 });
 
 // value of the due date was changed
-$(".list-group").on("blur", "input[type='text']", function () {
+$(".list-group").on("change", "input[type='text']", function () {
   // get current text
   var date = $(this)
     .val()
@@ -175,13 +243,13 @@ $(".list-group").on("blur", "input[type='text']", function () {
 
 });
 
-
 // remove all tasks
 $("#remove-tasks").on("click", function () {
   for (var key in tasks) {
     tasks[key].length = 0;
     $("#list-" + key).empty();
   }
+  console.log(tasks);
   saveTasks();
 });
 
